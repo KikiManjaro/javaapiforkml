@@ -756,7 +756,13 @@ public class Kml implements Cloneable
         throws FileNotFoundException
     {
         OutputStream out = new FileOutputStream(filename);
-        return this.marshal(out);
+        boolean marshal = this.marshal(out);
+        try {
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return marshal;
     }
 
     public boolean marshalAsKmz(
