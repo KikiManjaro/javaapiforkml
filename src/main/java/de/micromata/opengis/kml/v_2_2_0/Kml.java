@@ -767,19 +767,24 @@ public class Kml implements Cloneable
         return marshal;
     }
 
-    private void beautifulMarshal(File file) throws JAXBException {
+    public boolean beautifulMarshal(File file) {
         String name = this.getClass().getSimpleName();
         if ("Kml".equals(name)) {
             name = name.toLowerCase();
         }
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(Kml.class);
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        jaxbMarshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NameSpaceBeautyfier());
-        JAXBElement<Kml> jaxbKml = new JAXBElement<Kml>(new QName("http://www.opengis.net/kml/2.2", name), (Class<Kml>) this.getClass(), this);
-        jaxbMarshaller.marshal(jaxbKml, file);
+        JAXBContext jaxbContext = null;
+        try {
+            jaxbContext = JAXBContext.newInstance(Kml.class);
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NameSpaceBeautyfier());
+            JAXBElement<Kml> jaxbKml = new JAXBElement<Kml>(new QName("http://www.opengis.net/kml/2.2", name), (Class<Kml>) this.getClass(), this);
+            jaxbMarshaller.marshal(jaxbKml, file);
+            return true;
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean marshalAsKmz(
