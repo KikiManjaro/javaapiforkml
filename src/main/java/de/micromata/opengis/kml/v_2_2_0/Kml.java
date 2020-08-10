@@ -1,6 +1,32 @@
 
 package de.micromata.opengis.kml.v_2_2_0;
 
+import com.sun.istack.NotNull;
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
+import de.micromata.opengis.kml.v_2_2_0.gx.Tour;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -18,30 +44,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import com.sun.istack.NotNull;
-import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
-import de.micromata.opengis.kml.v_2_2_0.gx.Tour;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 
 /**
@@ -763,6 +765,21 @@ public class Kml implements Cloneable
             e.printStackTrace();
         }
         return marshal;
+    }
+
+    private void beautifulMarshal(File file) throws JAXBException {
+        String name = this.getClass().getSimpleName();
+        if ("Kml".equals(name)) {
+            name = name.toLowerCase();
+        }
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(Kml.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        jaxbMarshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new NameSpaceBeautyfier());
+        JAXBElement<Kml> jaxbKml = new JAXBElement<Kml>(new QName("http://www.opengis.net/kml/2.2", name), (Class<Kml>) this.getClass(), this);
+        jaxbMarshaller.marshal(jaxbKml, file);
     }
 
     public boolean marshalAsKmz(
